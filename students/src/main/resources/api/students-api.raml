@@ -1,0 +1,83 @@
+#%RAML 1.0
+title: StudentsAPI
+
+types:
+  Student:
+    properties:
+     studentID: integer
+     studentName: string
+  Subject:
+    properties:
+       subjectID: integer
+       subjectName: string
+  Marks:
+    properties:
+      studentID: integer
+      subjectID: integer
+      marks: 
+        type: number
+        multipleOf: 0.01
+  
+/students:
+  post:
+        description: add student in student table
+        headers:
+          Authorizaton:
+            required: false
+          Content:
+            type: string
+            required: false
+        body:
+          application/json:
+            type: Student
+            examples:
+              input: !include examples/StudentTableXMLExample.raml
+          application/xml:
+            type: Student
+            examples:
+              input: !include examples/StudentTableXMLExample.raml
+        responses:
+          201:
+            body:
+              application/json:
+                example:
+                  message: Student added successfully!
+    
+/subject:
+  get:
+    description: get subjects listed in subjects table
+    responses:
+      200:
+        body:
+          application/json:
+            type: array
+            example: [English, Maths] 
+  /{ID}:
+    get:
+      description: pass subject id in uri and get subject name
+      responses:
+        200:
+          body:
+            application/json:
+              type: string
+              example: English
+
+/marks:
+  get:
+    queryParameters:
+      subjectID:
+        enum:
+          - 101
+          - 102
+        type: integer
+        required: false
+      studentID:
+          type: integer
+          required: true
+    responses:
+      200:
+        body:
+          application/json:
+            type: array
+            example:
+              [99.5, 80, 71]

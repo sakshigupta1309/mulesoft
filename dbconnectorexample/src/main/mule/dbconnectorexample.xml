@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="dbconnectorexampleFlow1" doc:id="a586b1a8-79d2-4917-93b0-456ed22b52af" >
+		<http:listener doc:name="Listener" doc:id="e61b0dfa-0822-429c-bfdb-47e9bb61ce43" path="/setpayload" config-ref="HTTP_Listener_config"/>
+		<set-payload value="Main Payload" doc:name="Set Payload" doc:id="53cd313e-569a-4096-a9ec-96bd954830d0" />
+		<flow-ref doc:name="Flow Reference" doc:id="be7b9600-267a-441d-9a31-c3d15f96f1ca" name="dbconnectorexampleFlow2"/>
+	</flow>
+	<flow name="dbconnectorexampleFlow2" doc:id="c42b985f-15d0-4168-850e-973d60aaebb2" >
+		<set-payload value="sub payload" doc:name="Set Payload" doc:id="f96088c2-c248-437c-9cab-0d59ad6de2f0" />
+	</flow>
+</mule>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="1ecfd4b9-b663-4c0e-be2b-50647916b94f" >
+		<db:my-sql-connection host="localhost" port="3307" user="root" password="root" database="school" />
+	</db:config>
+	<flow name="postStudentsWithJsonMessage" doc:id="293a6aed-606d-4afd-a2c2-ae2033c16acb" >
+		<db:insert doc:name="Insert" doc:id="e75292e6-f68c-463f-b646-787675b3f373" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into student values (:student_id,:student_name)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{'student_id' : payload.Student.studentID,
+'student_name' : payload.Student.studentName
+}]]]></db:input-parameters>
+		</db:insert>
+		<set-payload value="Inserted successfully!" doc:name="Set Payload" doc:id="a097901c-4617-498d-b283-5d0da700b3a1" />
+	</flow>
+	<flow name="getSubjectsNames" doc:id="c7fe209f-1539-4e79-9373-015b0f7f6e5b" >
+		<db:select doc:name="Select" doc:id="9ea82c1c-8ea7-49a2-9df5-52e942c164d3" config-ref="Database_Config">
+			<db:sql ><![CDATA[Select distinct(subject_name) from Subject]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="6c25f956-f440-485a-925e-46dda67c7760" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="postStudentsWithXMLMessage" doc:id="596d7032-4ec9-4989-95af-31e25e3ad3e2" >
+		<db:insert doc:name="Insert" doc:id="9179bae9-966c-4fbc-a61d-5731ff0bab43" config-ref="Database_Config" >
+			<db:sql ><![CDATA[insert into student values (:student_id,:student_name)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{'student_id' : payload.Student.studentID,
+'student_name' : payload.Student.studentName
+}]]]></db:input-parameters>
+		</db:insert>
+		<set-payload value="Inserted successfully!" doc:name="Set Payload" doc:id="62983e79-eebb-4329-bf6f-166f884bc1dd" />
+	</flow>
+	<flow name="getSubjectNameFromSubjectID" doc:id="06f55177-915f-433b-899c-473573250414" >
+		<db:select doc:name="Select" doc:id="3f08ecdb-8102-4edd-8b79-792d6c2d60fd" config-ref="Database_Config">
+			<db:sql ><![CDATA[select subject_name from subject where subject_id= :subject_id]]></db:sql>
+			<db:input-parameters ><![CDATA[#['subject_id' : attributes.uriParams.ID]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="e37b9564-073f-48e8-a2e9-6b8b67d5e47e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="getMarksFromStudentIDandSubjectID" doc:id="4560d43c-8cae-4440-b5dd-ce4089515460" >
+		<db:select doc:name="Select" doc:id="9134ab15-2a1c-4762-8200-bfb16c8071b4" config-ref="Database_Config">
+			<db:sql ><![CDATA[select marks from marks where case when (:subject_id is NULL) then student_id= :student_id else (student_id= :student_id AND subject_id= :subject_id) END]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	'student_id' : attributes.queryParams.studentID,
+	'subject_id' : attributes.queryParams.subjectID
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="54402024-d774-4c31-b018-d04b773bf34c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
